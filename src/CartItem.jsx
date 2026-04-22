@@ -1,94 +1,97 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCart, deleteItem, updateQuantity } from "./CartSlice";
 
-function CartItem() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Aloe Vera",
-      price: 10,
-      image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=400&q=80",
-      quantity: 1
-    },
-    {
-      id: 2,
-      name: "Snake Plant",
-      price: 15,
-      image: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=400&q=80",
-      quantity: 2
-    }
-  ]);
+function CartItem({ onContinueShopping }) {
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
 
-  const increaseQuantity = (id) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+  const checkoutHandler = () => {
+    alert("Checkout coming soon!");
   };
-
-  const decreaseQuantity = (id) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-  };
-
-  const totalAmount = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Shopping Cart</h2>
-      <p><strong>Total Items:</strong> {totalItems}</p>
-      <p><strong>Total Cost:</strong> ${totalAmount}</p>
+      <nav
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "30px",
+          background: "#e3f2fd",
+          padding: "15px 20px",
+          borderRadius: "10px",
+        }}
+      >
+        <h2>Shopping Cart</h2>
+        <button onClick={onContinueShopping}>Continue Shopping</button>
+      </nav>
 
-      {cartItems.length === 0 ? (
-        <p>No items in the cart.</p>
+      <h3>Total Cart Amount: ${cart.totalAmount}</h3>
+      <h4>Total Items: {cart.totalQuantity}</h4>
+
+      {cart.items.length === 0 ? (
+        <p>Your cart is empty.</p>
       ) : (
-        cartItems.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "20px",
-              marginBottom: "20px",
-              border: "1px solid #ccc",
-              borderRadius: "10px",
-              padding: "15px"
-            }}
-          >
-            <img
-              src={item.image}
-              alt={item.name}
-              style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }}
-            />
-            <div>
-              <h3>{item.name}</h3>
-              <p>Price: ${item.price}</p>
-              <p>Quantity: {item.quantity}</p>
-              <button onClick={() => increaseQuantity(item.id)}>+</button>
-              <button onClick={() => decreaseQuantity(item.id)} style={{ marginLeft: "10px" }}>-</button>
-              <button onClick={() => removeItem(item.id)} style={{ marginLeft: "10px" }}>
-                Delete
-              </button>
-            </div>
-          </div>
-        ))
-      )}
+        <>
+          {cart.items.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "20px",
+                border: "1px solid #ccc",
+                padding: "15px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+              }}
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                }}
+              />
 
-      <button style={{ marginTop: "20px" }}>Checkout</button>
+              <div>
+                <h3>{item.name}</h3>
+                <p>Unit Price: ${item.price}</p>
+                <p>Quantity: {item.quantity}</p>
+                <p>Total Price: ${item.totalPrice}</p>
+
+                <button onClick={() => dispatch(updateQuantity({ id: item.id, amount: 1 }))}>
+                  +
+                </button>
+
+                <button
+                  onClick={() => dispatch(updateQuantity({ id: item.id, amount: -1 }))}
+                  style={{ marginLeft: "10px" }}
+                >
+                  -
+                </button>
+
+                <button
+                  onClick={() => dispatch(deleteItem(item.id))}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+
+          <button onClick={checkoutHandler} style={{ marginRight: "10px" }}>
+            Checkout
+          </button>
+
+          <button onClick={() => dispatch(clearCart())}>Clear Cart</button>
+        </>
+      )}
     </div>
   );
 }

@@ -1,20 +1,32 @@
 import { useState } from "react";
+import "./App.css";
 import AboutUs from "./AboutUs";
+import ProductList from "./ProductList";
+import CartItem from "./CartItem";
 
 function App() {
-  const [showProducts, setShowProducts] = useState(false);
+  const [currentPage, setCurrentPage] = useState("home");
 
   return (
     <>
-      {!showProducts ? (
-        <div className="hero">
-          <h1>Paradise Nursery</h1>
-          <button onClick={() => setShowProducts(true)}>
-            Get Started
-          </button>
+      {currentPage === "home" && (
+        <div className="container">
+          <div className="overlay">
+            <h1>Paradise Nursery</h1>
+            <p>Welcome to our plant store 🌱</p>
+            <button onClick={() => setCurrentPage("products")}>Get Started</button>
+          </div>
         </div>
-      ) : (
-        <AboutUs />
+      )}
+
+      {currentPage === "about" && <AboutUs />}
+
+      {currentPage === "products" && (
+        <ProductList onGoToCart={() => setCurrentPage("cart")} />
+      )}
+
+      {currentPage === "cart" && (
+        <CartItem onContinueShopping={() => setCurrentPage("products")} />
       )}
     </>
   );
